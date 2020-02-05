@@ -5,7 +5,7 @@ function Connect-MSCloudLoginSkypeForBusiness
 
     if($Global:UseApplicationIdentity -and $null -eq $Global:o365Credential)
     {
-        throw "The SharePointOnline Platform does not support connecting with application identity."
+        throw "The SkypeForBusiness Platform does not support connecting with application identity."
     }
     
     if ($null -eq $Global:o365Credential)

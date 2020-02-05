@@ -15,7 +15,6 @@
 
 function Test-MSCloudLogin
 {
-    [CmdletBinding(DefaultParameterSetName="UserCredentials")]
     param
     (
         [Parameter(Mandatory=$true)]
@@ -29,33 +28,22 @@ function Test-MSCloudLogin
         [System.String]
         $ConnectionUrl,
 
-        [Parameter(ParameterSetName="UserCredentials")]
         [Alias("o365Credential")]
         [System.Management.Automation.PSCredential]
         $CloudCredential,
 
-        [Parameter(ParameterSetName="UserCredentials")]
-        [Parameter()]
         [Switch]
         $UseModernAuth,
 
-        [Parameter(ParameterSetName="ApplicationIdentity")]
-        [Parameter()]
         [System.String]
         $AppId,
 
-        [Parameter(ParameterSetName="ApplicationIdentity")]
-        [Parameter()]
         [System.String]
         $AppSecret,
 
-        [Parameter(ParameterSetName="ApplicationIdentity")]
-        [Parameter()]
         [System.String]
         $CertificateThumbprint,
 
-        [Parameter(ParameterSetName="ApplicationIdentity")]
-        [Parameter()]
         [System.String]
         $Tenant
     )
@@ -67,16 +55,42 @@ function Test-MSCloudLogin
         $Global:DomainName = $Global:o365Credential.UserName.Split('@')[1]
     }
 
-    $Global:appIdentityParams = @{
-        AppId = $AppId
-        AppSecret = $AppSecret
-        CertificateThumbprint = $CertificateThumbprint
-        Tenant = $Tenant
+    if ($null -eq $Global:UseApplicationIdentity)
+    {
+        $Global:UseApplicationIdentity = $AppId -ne $null
+    }
+
+    if($null -eq $Global:appIdentityParams) 
+    {
+        $Global:appIdentityParams = @{
+            AppId = $AppId
+            AppSecret = $AppSecret
+            CertificateThumbprint = $CertificateThumbprint
+            Tenant = $Tenant
+            ServicePrincipalCredentials = $null
+        }
     }
 
     if ($null -eq $Global:UseModernAuth)
     {
         $Global:UseModernAuth = $UseModernAuth.IsPresent
+    }
+
+    if($Global:UseApplicationIdentity)
+    {
+        if(-not $AppSecret -and -not $CertificateThumbprint) 
+        {
+            throw "Either a application secret or a certificate thumbprint must be provided when connecting with an application identity"
+        }
+
+        if(-not $Tenant)
+        {
+            throw "The tenant must be specified when connecting with an application identity"
+        }
+
+        $secpasswd = ConvertTo-SecureString $Global:appIdentityParams.AppSecret -AsPlainText -Force
+        $spCreds = New-Object System.Management.Automation.PSCredential ($Global:appIdentityParams.AppId, $secpasswd)
+        $Global:appIdentityParams.ServicePrincipalCredentials = $spCreds
     }
 
     switch ($Platform)
