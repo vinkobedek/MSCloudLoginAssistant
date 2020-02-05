@@ -17,7 +17,7 @@ function Connect-MSCloudLoginPowerPlatform
                 $Global:CloudEnvironment = 'Germany'
                 Write-Warning 'Microsoft PowerPlatform is not supported in the Germany Cloud'
                 return
-            }
+            }            
             Add-PowerAppsAccount -UserName $Global:o365credential.UserName `
                 -Password $Global:o365Credential.Password `
                 -ErrorAction Stop | Out-Null

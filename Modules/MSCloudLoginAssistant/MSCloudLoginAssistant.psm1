@@ -15,7 +15,7 @@
 
 function Test-MSCloudLogin
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName="UserCredentials")]
     param
     (
         [Parameter(Mandatory=$true)]
@@ -29,14 +29,35 @@ function Test-MSCloudLogin
         [System.String]
         $ConnectionUrl,
 
-        [Parameter()]
+        [Parameter(ParameterSetName="UserCredentials")]
         [Alias("o365Credential")]
         [System.Management.Automation.PSCredential]
         $CloudCredential,
 
+        [Parameter(ParameterSetName="UserCredentials")]
         [Parameter()]
         [Switch]
-        $UseModernAuth
+        $UseModernAuth,
+
+        [Parameter(ParameterSetName="ApplicationIdentity")]
+        [Parameter()]
+        [System.String]
+        $AppId,
+
+        [Parameter(ParameterSetName="ApplicationIdentity")]
+        [Parameter()]
+        [System.String]
+        $AppSecret,
+
+        [Parameter(ParameterSetName="ApplicationIdentity")]
+        [Parameter()]
+        [System.String]
+        $CertificateThumbprint,
+
+        [Parameter(ParameterSetName="ApplicationIdentity")]
+        [Parameter()]
+        [System.String]
+        $Tenant
     )
 
     # If we specified the CloudCredential parameter then set the global o365Credential object to its value
@@ -44,6 +65,13 @@ function Test-MSCloudLogin
     {
         $Global:o365Credential = $CloudCredential
         $Global:DomainName = $Global:o365Credential.UserName.Split('@')[1]
+    }
+
+    $Global:appIdentityParams = @{
+        AppId = $AppId
+        AppSecret = $AppSecret
+        CertificateThumbprint = $CertificateThumbprint
+        Tenant = $Tenant
     }
 
     if ($null -eq $Global:UseModernAuth)
@@ -104,11 +132,37 @@ function Get-SPOAdminUrl
     (
         [Parameter()]
         [System.Management.Automation.PSCredential]
-        $CloudCredential
+        $CloudCredential,
+        
+        [Parameter()]
+        [System.String]
+        $AppId,
+        
+        [Parameter()]
+        [System.String]
+        $AppSecret,
+        
+        [Parameter()]
+        [System.String]
+        $CertificateThumbprint,
+        
+        [Parameter()]
+        [System.String]
+        $Tenant
+
     )
 
     Write-Verbose -Message "Connection to Azure AD is required to automatically determine SharePoint Online admin URL..."
-    Test-MSCloudLogin -Platform AzureAD -CloudCredential $CloudCredential
+
+    if($AppId)
+    {
+        Test-MSCloudLogin -Platform AzureAD -AppId $AppId -AppSecret $AppSecret -CertificateThumbprint $CertificateThumbprint -Tenant $Tenant
+    }
+    else
+    {
+        Test-MSCloudLogin -Platform AzureAD -CloudCredential $CloudCredential
+    }
+
     Write-Verbose -Message "Getting SharePoint Online admin URL..."
     $defaultDomain = Get-AzureADDomain | Where-Object {$_.Name -like "*.onmicrosoft.com" -and $_.IsInitial -eq $true} # We don't use IsDefault here because the default could be a custom domain
 

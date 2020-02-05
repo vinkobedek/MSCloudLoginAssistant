@@ -4,16 +4,29 @@ function Connect-MSCloudLoginAzure
     param()
     try
     {
-        if ($null -ne $Global:o365Credential)
+        
+        if (-not $Global:UseApplicationIdentity -and $null -ne $Global:o365Credential)
         {
-            Connect-AzAccount -Credential $Global:o365Credential -ErrorAction Stop | Out-Null
-            $Global:MSCloudLoginAzureConnected = $True
+            Connect-AzAccount -Credential $Global:o365Credential -ErrorAction Stop | Out-Null            
+        }        
+        elseif ($Global:UseApplicationIdentity)
+        {
+            if($Global:appIdentityParams.CertificateThumbprint) 
+            {
+                Connect-AzAccount -ApplicationId $Global:appIdentityParams.AppId -Tenant $Global:appIdentityParams.Tenant -CertificateThumbprint $Global:appIdentityParams.CertificateThumbprint  -ErrorAction Stop | Out-Null
+                Write-Verbose "Connected to Azure using application identity with certificate thumbprint"            
+            }
+            else
+            {
+                Connect-AzAccount -Credential $Global:appIdentityParams.ServicePrincipalCredentials -Tenant $Global:appIdentityParams.Tenant -ServicePrincipal  -ErrorAction Stop | Out-Null
+                Write-Verbose "Connected to Azure using application identity with application secret"            
+            }
         }
         else
         {
-            Connect-AzAccount -ErrorAction Stop | Out-Null
-            $Global:MSCloudLoginAzureConnected = $True
-        }
+            Connect-AzAccount -ErrorAction Stop | Out-Null                
+        }  
+        $Global:MSCloudLoginAzureConnected = $True
     }
     catch 
     {

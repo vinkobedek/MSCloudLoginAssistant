@@ -3,7 +3,19 @@ function Connect-MSCloudLoginTeams
     [CmdletBinding()]
     param()
 
-    if ($null -ne $Global:o365Credential)
+
+    if ($Global:UseApplicationIdentity)
+    {    
+        if($Global:appIdentityParams.CertificateThumbprint) 
+        {
+            Connect-MicrosoftTeams -TenantId $Global:appIdentityParams.Tenant -ApplicationId $Global:appIdentityParams.AppId -CertificateThumbprint $Global:appIdentityParams.CertificateThumbprint -ErrorAction Stop | Out-Null                
+        }
+        else
+        {
+            Connect-MicrosoftTeams -TenantId $Global:appIdentityParams.Tenant -Credential $Global:appIdentityParams.ServicePrincipalCredentials
+        }
+    }
+    elseif ($null -ne $Global:o365Credential)
     {
         if ($Global:o365Credential.UserName.Split('@')[1] -like '*.de')
         {
@@ -20,6 +32,7 @@ function Connect-MSCloudLoginTeams
         }
         try 
         {
+            
             Connect-MicrosoftTeams -Credential $Global:o365Credential -ErrorAction Stop | Out-Null
             $Global:MSCloudLoginTeamsConnected = $true
         }
