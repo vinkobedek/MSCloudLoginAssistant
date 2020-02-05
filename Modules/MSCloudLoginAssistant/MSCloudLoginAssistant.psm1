@@ -32,18 +32,23 @@ function Test-MSCloudLogin
         [System.Management.Automation.PSCredential]
         $CloudCredential,
 
+        [Parameter()]
         [Switch]
         $UseModernAuth,
 
+        [Parameter()]
         [System.String]
         $AppId,
 
+        [Parameter()]
         [System.String]
         $AppSecret,
 
+        [Parameter()]
         [System.String]
         $CertificateThumbprint,
 
+        [Parameter()]
         [System.String]
         $Tenant
     )
@@ -57,7 +62,7 @@ function Test-MSCloudLogin
 
     if ($null -eq $Global:UseApplicationIdentity)
     {
-        $Global:UseApplicationIdentity = $AppId -ne $null
+        $Global:UseApplicationIdentity = ![string]::IsNullOrEmpty($AppId)
     }
 
     if($null -eq $Global:appIdentityParams) 
