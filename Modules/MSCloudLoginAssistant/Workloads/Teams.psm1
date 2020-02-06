@@ -10,7 +10,7 @@ function Connect-MSCloudLoginTeams
         }
         else
         {
-            Connect-MicrosoftTeams -TenantId $Global:appIdentityParams.Tenant -Credential $Global:appIdentityParams.ServicePrincipalCredentials
+            throw "The MicrosoftTeams Platform does not support connecting with application secret"
         }
     }
     elseif ($null -ne $Global:o365Credential)

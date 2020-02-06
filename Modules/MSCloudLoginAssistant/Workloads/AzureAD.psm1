@@ -13,6 +13,7 @@ function Connect-MSCloudLoginAzureAD
             }
             else
             {                
+                # actually it probably can do so by getting the access token manually, but for now we want it to work with the certificate
                 throw "The AzureAD Platform does not support connecting with application secret"
             }            
         }
