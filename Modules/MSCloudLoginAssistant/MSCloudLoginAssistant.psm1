@@ -15,6 +15,7 @@
 
 function Test-MSCloudLogin
 {
+    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory=$true)]
