@@ -2,7 +2,6 @@ function Connect-MSCloudLoginPowerPlatform
 {
     [CmdletBinding()]
     param()
-
     if($Global:UseApplicationIdentity -and $null -eq $Global:o365Credential)
     {
         throw "The PowerPlatforms Platform does not support connecting with application identity."

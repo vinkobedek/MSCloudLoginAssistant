@@ -2,7 +2,6 @@ function Connect-MSCloudLoginMSOnline
 {
     [CmdletBinding()]
     param()
-
     if($Global:UseApplicationIdentity -and $null -eq $Global:o365Credential)
     {
         throw "The MSOnline Platform does not support connecting with application identity."

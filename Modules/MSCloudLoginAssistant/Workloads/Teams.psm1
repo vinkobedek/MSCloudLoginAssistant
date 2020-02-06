@@ -2,8 +2,6 @@ function Connect-MSCloudLoginTeams
 {
     [CmdletBinding()]
     param()
-
-
     if ($Global:UseApplicationIdentity)
     {    
         if($Global:appIdentityParams.CertificateThumbprint) 

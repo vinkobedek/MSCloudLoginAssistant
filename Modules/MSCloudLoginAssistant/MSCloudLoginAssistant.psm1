@@ -60,12 +60,11 @@ function Test-MSCloudLogin
         $Global:DomainName = $Global:o365Credential.UserName.Split('@')[1]
     }
 
-    if ($null -eq $Global:UseApplicationIdentity)
-    {
-        $Global:UseApplicationIdentity = ![string]::IsNullOrEmpty($AppId)
-    }
+    
+    $Global:UseApplicationIdentity = ![string]::IsNullOrEmpty($AppId) -or ![string]::IsNullOrEmpty($AppSecret) -or ![string]::IsNullOrEmpty($CertificateThumbprint)
 
-    if($null -eq $Global:appIdentityParams) 
+
+    if($Global:UseApplicationIdentity) 
     {
         $Global:appIdentityParams = @{
             AppId = $AppId
@@ -83,9 +82,9 @@ function Test-MSCloudLogin
 
     if($Global:UseApplicationIdentity)
     {
-        if(-not $AppSecret -and -not $CertificateThumbprint) 
+        if(!$AppId -or (!$AppSecret -and !$CertificateThumbprint)) 
         {
-            throw "Either a application secret or a certificate thumbprint must be provided when connecting with an application identity"
+            throw "When connecting with an application identity the ApplicationId and the AppSecret or CertificateThumbprint parameters must be provided"
         }
 
         if(-not $Tenant)
@@ -93,8 +92,12 @@ function Test-MSCloudLogin
             throw "The tenant must be specified when connecting with an application identity"
         }
 
-        $secpasswd = ConvertTo-SecureString $Global:appIdentityParams.AppSecret -AsPlainText -Force
-        $spCreds = New-Object System.Management.Automation.PSCredential ($Global:appIdentityParams.AppId, $secpasswd)
+        if($Global:appIdentityParams.AppSecret)
+        {
+            $secpasswd = ConvertTo-SecureString $Global:appIdentityParams.AppSecret -AsPlainText -Force
+            $spCreds = New-Object System.Management.Automation.PSCredential ($Global:appIdentityParams.AppId, $secpasswd)
+        }
+        
         $Global:appIdentityParams.ServicePrincipalCredentials = $spCreds
     }
 

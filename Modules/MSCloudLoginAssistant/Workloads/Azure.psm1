@@ -3,8 +3,7 @@ function Connect-MSCloudLoginAzure
     [CmdletBinding()]
     param()
     try
-    {
-        
+    {        
         if (-not $Global:UseApplicationIdentity -and $null -ne $Global:o365Credential)
         {
             Connect-AzAccount -Credential $Global:o365Credential -ErrorAction Stop | Out-Null            
