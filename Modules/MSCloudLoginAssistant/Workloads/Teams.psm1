@@ -2,6 +2,7 @@ function Connect-MSCloudLoginTeams
 {
     [CmdletBinding()]
     param()
+    
     if ($Global:UseApplicationIdentity)
     {    
         if($Global:appIdentityParams.CertificateThumbprint) 
@@ -29,8 +30,7 @@ function Connect-MSCloudLoginTeams
             Connect-MSCloudLoginTeamsMFA -EnvironmentName $Global:CloudEnvironment
         }
         try 
-        {
-            
+        {            
             Connect-MicrosoftTeams -Credential $Global:o365Credential -ErrorAction Stop | Out-Null
             $Global:MSCloudLoginTeamsConnected = $true
         }

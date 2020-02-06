@@ -29,6 +29,7 @@ function Test-MSCloudLogin
         [System.String]
         $ConnectionUrl,
 
+        [Parameter()]
         [Alias("o365Credential")]
         [System.Management.Automation.PSCredential]
         $CloudCredential,
@@ -168,7 +169,6 @@ function Get-SPOAdminUrl
         [Parameter()]
         [System.String]
         $Tenant
-
     )
 
     Write-Verbose -Message "Connection to Azure AD is required to automatically determine SharePoint Online admin URL..."
