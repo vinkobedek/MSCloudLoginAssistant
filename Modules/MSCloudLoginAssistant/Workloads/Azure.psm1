@@ -4,7 +4,7 @@ function Connect-MSCloudLoginAzure
     param()
     try
     {        
-        if (-not $Global:UseApplicationIdentity -and $null -ne $Global:o365Credential)
+        if (!$Global:UseApplicationIdentity -and $null -ne $Global:o365Credential)
         {
             Connect-AzAccount -Credential $Global:o365Credential -ErrorAction Stop | Out-Null            
         }        
@@ -23,8 +23,9 @@ function Connect-MSCloudLoginAzure
         }
         else
         {
-            Connect-AzAccount -ErrorAction Stop | Out-Null                
-        }  
+            Connect-AzAccount -ErrorAction Stop | Out-Null
+        }
+        
         $Global:MSCloudLoginAzureConnected = $True
     }
     catch 
